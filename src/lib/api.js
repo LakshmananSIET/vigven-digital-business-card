@@ -1,9 +1,17 @@
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbywkEazy2EG_zcA_F_W4wqkXPvs9HvBhXG8KnTvs4DLI-NOB75rjUDQh-3bhh2H7fzC/exec';
 const AUTH_KEY = 'vigven_dbc_admin_password';
 
-export const getToken = () => localStorage.getItem(AUTH_KEY) || '';
-export const setToken = (value) => localStorage.setItem(AUTH_KEY, value);
-export const clearToken = () => localStorage.removeItem(AUTH_KEY);
+// Keep the admin password only for the current browser tab/session.
+// It is not persisted in localStorage, so closing the tab/browser requires login again.
+export const getToken = () => sessionStorage.getItem(AUTH_KEY) || '';
+export const setToken = (value) => {
+  localStorage.removeItem(AUTH_KEY); // remove any password saved by older versions
+  sessionStorage.setItem(AUTH_KEY, value);
+};
+export const clearToken = () => {
+  sessionStorage.removeItem(AUTH_KEY);
+  localStorage.removeItem(AUTH_KEY);
+};
 
 async function post(action, payload = {}, auth = false) {
   const body = { action, ...payload };
